@@ -46,7 +46,9 @@ function setup() {
 
   button = createButton("Play"); // Create a play button
   button.mousePressed(toggleSong); // Add mouse press event to the button
-  button.position(100, 100);
+  button.position(20, 30);
+  button.size(80);
+
   fft = new p5.FFT(0.3, 32); // Create a new FFT analysis object
 
   //Define the color arrays for lerpColor().
