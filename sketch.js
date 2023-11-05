@@ -32,11 +32,19 @@ let polyShadow;
 let polyBlurry1; //the transition part between building and distant building
 let polyBlurry2; //the distant building
 
+let song;
+let button;
+
+function preload() {
+  song = loadSound("audio/drums.mp3"); // Preload the audio file
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  button = createButton("Play"); // Create a play button
+  button.mousePressed(toggleSong); // Add mouse press event to the button
 
   //Define the color arrays for lerpColor().
-
   //The colors are: [0]navy blue, [1]sea green, [2]bright yellow, [3]orange red, [4]dark red
   skyColorsFrom.push(
     color(62, 84, 143),
@@ -64,10 +72,10 @@ function setup() {
   brushAmount = width / brushWidth;
 
   scl = windowHeight / 140; //size of segment
-  // cols = floor(windowWidth / scl);
-  // rows = floor(windowHeight / scl);
+
   cols = windowWidth / scl;
   rows = windowHeight / scl;
+
   //Define the color arrays for lerpColor().
 
   //The colors are: [0]navy blue, [1]sea green, [2]bright yellow, [3]orange red, [4]dark red
@@ -89,23 +97,6 @@ function setup() {
 
   //Build four arrays: skyColorLerp A/B/C/D to contain the lerpColor() results between the
   //skyColorsFrom[] and skyColorsTo[]
-
-  updateDimensions();
-
-  w = windowWidth;
-  h = windowHeight;
-  unitX = w / 32; //unit coordinate for x
-  unitY = h / 32; //unit coordinate for y
-
-  shadow();
-  blurryBg1(); //transition
-  blurryBg2(); //distant building
-
-  noLoop();
-}
-
-function draw() {
-  //background(255);
   generateColor(1, skyColorsLerpA, 0, 8);
   generateColor(1, skyColorsLerpB, 1, 8);
   generateColor(1, skyColorsLerpC, 2, 8);
@@ -115,11 +106,21 @@ function draw() {
   generateColor(2, waterColorsLerpB, 1, 9);
   generateColor(2, waterColorsLerpC, 2, 9);
   generateColor(2, waterColorsLerpD, 3, 9);
+
+  w = windowWidth;
+  h = windowHeight;
+  unitX = w / 32; //unit coordinate for x
+  unitY = h / 32; //unit coordinate for y
+
+  shadow();
+  blurryBg1(); //transition
+  blurryBg2(); //distant building
+}
+
+function draw() {
   drawSkyEllipse();
 
   waterSurface();
-
-  //waterColor(poly,color(71,41,50));
 
   //color of building
   fill(71, 41, 50);
@@ -170,16 +171,12 @@ function waterSurface() {
   translate(0, windowHeight / 2);
   let yoff = 0;
   for (let y = 0; y < rows / 2; y++) {
-    //"i" stands for "y"
     let xoff = 0;
     for (let x = 0; x < cols; x++) {
-      //"j" stands for "x"
       let angle = noise(xoff, yoff) * TWO_PI;
       let v = p5.Vector.fromAngle(angle * -0.2);
       xoff += inc;
-      //rect(x*scl,y*scl,scl,scl);
       noStroke();
-
       push();
       translate(x * scl, y * scl);
       rotate(v.heading());
@@ -305,9 +302,7 @@ class Poly {
 }
 
 function waterColor(poly, r, g, b, numLayers) {
-  //const numLayers=20;
   fill(r, g, b, 255 / (2 * numLayers));
-  //fill(red(color),green(color),blue(color),255/(2*numLayers));
   noStroke();
 
   poly = poly.grow().grow();
@@ -414,5 +409,16 @@ function drawEllipse(lerpEllipse, colorArray, r) {
         )
       );
     }
+  }
+}
+
+// A function to switch the playing state of the audio
+function toggleSong() {
+  if (song.isPlaying()) {
+    song.pause(); // Pause the audio if it is playing
+    button.html("Play"); // Update button text
+  } else {
+    song.play(); // Play the audio if it is not playing
+    button.html("Pause"); // Update button text
   }
 }
