@@ -46,8 +46,8 @@ function setup() {
 
   button = createButton("Play"); // Create a play button
   button.mousePressed(toggleSong); // Add mouse press event to the button
-  fft = new p5.FFT(0.8, 32); // Create a new FFT analysis object
-  song.connect(fft); // Add the song into the FFT's input
+  button.position(100, 100);
+  fft = new p5.FFT(0.3, 32); // Create a new FFT analysis object
 
   //Define the color arrays for lerpColor().
   //The colors are: [0]navy blue, [1]sea green, [2]bright yellow, [3]orange red, [4]dark red
@@ -120,17 +120,16 @@ function draw() {
   // Request fresh data from the FFT analysis
   let spectrum = fft.analyze();
 
-  drawSkyEllipse();
-
   // Draw the spectrum to show energy
-  for (let i = 0; i < 4; i++) {
-    building(spectrum[i]);
+  for (let i = 0; i < 6; i++) {
+    drawSkyEllipse(spectrum[i]);
     waterSurface(spectrum[i]);
-  }
+    building(spectrum[i]);
 
-  waterColor(polyShadow, 71, 41, 50, 20);
-  waterColor(polyBlurry1, 20, 70, 10, 10); //transition
-  waterColor(polyBlurry2, 40, 90, 30, 5); //distant building
+    waterColor(polyShadow, 71, 41, 50, round(spectrum[i] / 30), spectrum[i]);
+    waterColor(polyBlurry1, 20, 70, 10, round(spectrum[i] / 30), spectrum[i]); //transition
+    waterColor(polyBlurry2, 40, 90, 30, round(spectrum[i] / 30), spectrum[i]); //distant building
+  }
 }
 
 function building(tt) {
@@ -191,8 +190,7 @@ function waterSurface(spectrum) {
     for (let x = 0; x < cols; x++) {
       let angle = noise(xoff, yoff) * TWO_PI;
       let v = p5.Vector.fromAngle(angle * -0.2);
-      // xoff += inc;
-      xoff = spectrum + inc;
+      xoff = spectrum * inc;
       noStroke();
       push();
       translate(x * scl, y * scl);
@@ -316,8 +314,9 @@ class Poly {
   }
 }
 
-function waterColor(poly, r, g, b, numLayers) {
-  fill(r, g, b, 255 / (2 * numLayers));
+function waterColor(poly, r, g, b, numLayer, spectrum) {
+  let numLayers = numLayer || 5;
+  fill(r, g, b, (spectrum || 100) - 50);
   noStroke();
   poly = poly.grow().grow();
   for (let i = 0; i < numLayers; i++) {
@@ -367,24 +366,26 @@ function windowResized() {
 }
 
 //Draw the first line of ellipses using lerpColor() and color arrays.
-function drawSkyEllipse() {
+function drawSkyEllipse(spectrum = 0) {
+  const temp = spectrum ? spectrum / 50 : 0;
+  const aa = brushWidth + temp;
   for (let i = 0; i < skyColorsFrom.length; i++) {
     for (let j = 0; j < brushAmount; j++) {
       noStroke();
       fill(skyColorsFrom[i]);
       skyEllipse.push(
         ellipse(
-          brushWidth / 2 + brushWidth * j,
-          brushWidth / 2 + (height / 8) * i,
-          brushWidth
+          aa / 2 + aa * j + temp * 2,
+          aa / 2 + (height / 8) * i + temp * 2,
+          aa + temp
         )
       );
     }
   }
-  drawEllipse(skyLerpEllipseA, skyColorsLerpA, 1);
-  drawEllipse(skyLerpEllipseB, skyColorsLerpB, 9);
-  drawEllipse(skyLerpEllipseC, skyColorsLerpC, 17);
-  drawEllipse(skyLerpEllipseD, skyColorsLerpD, 25);
+  drawEllipse(skyLerpEllipseA, skyColorsLerpA, 1, temp);
+  drawEllipse(skyLerpEllipseB, skyColorsLerpB, 9, temp);
+  drawEllipse(skyLerpEllipseC, skyColorsLerpC, 17, temp);
+  drawEllipse(skyLerpEllipseD, skyColorsLerpD, 25, temp);
 }
 
 //type: 1=sky;2=water
@@ -410,15 +411,16 @@ function generateColor(type, colorLerp, num, r) {
 //draw ellipses between each two basic color lines
 //r: rows
 //colorArray: each array for sky
-function drawEllipse(lerpEllipse, colorArray, r) {
+function drawEllipse(lerpEllipse, colorArray, r, spectrum) {
+  const aa = brushWidth + spectrum * 2;
   for (let i = 0; i < 7; i++) {
     for (let j = 0; j < brushAmount; j++) {
       fill(colorArray[i]);
       lerpEllipse.push(
         ellipse(
-          brushWidth / 2 + brushWidth * j,
-          brushWidth / 2 + brushWidth * (i + r),
-          brushWidth
+          aa / 2 + aa * j + spectrum * 2,
+          aa / 2 + aa * (i + r) + spectrum * 2,
+          aa + spectrum
         )
       );
     }
