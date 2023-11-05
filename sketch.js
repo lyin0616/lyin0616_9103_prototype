@@ -46,7 +46,7 @@ function setup() {
 
   button = createButton("Play"); // Create a play button
   button.mousePressed(toggleSong); // Add mouse press event to the button
-  fft = new p5.FFT(0.8, 512); // Create a new FFT analysis object
+  fft = new p5.FFT(0.8, 32); // Create a new FFT analysis object
   song.connect(fft); // Add the song into the FFT's input
 
   //Define the color arrays for lerpColor().
@@ -122,58 +122,10 @@ function draw() {
 
   drawSkyEllipse();
 
-  waterSurface();
-
-  //color of building
-  fill(71, 41, 50);
-  strokeWeight(2);
-  stroke(43, 49, 45);
-
   // Draw the spectrum to show energy
-  for (let i = 0; i < spectrum.length; i++) {
-    unitH1 = map(spectrum[i], 0, 255, 0, -100);
-    unitH = unitY + unitH1 / 8;
-    let r = map(spectrum[i], 0, 255, 0, 71);
-    let c1 = color(r, 41, 50);
-    let c2 = color(43, r, r);
-    let col = lerpColor(c1, c2, random(10));
-
-    fill(col);
-
-    //the building
-    beginShape();
-    vertex(0, 16 * unitY);
-
-    vertex(0, 13.8 * unitH);
-    vertex(unitX, 13.8 * unitH);
-    vertex(2 * unitX, 11 * unitH);
-    vertex(3 * unitX, 11 * unitH);
-    vertex(3.4 * unitX, 9 * unitH);
-    vertex(4 * unitX, 11 * unitH);
-    vertex(4.7 * unitX, 10.5 * unitH);
-    vertex(4.7 * unitX, 4 * unitH);
-    vertex(4.9 * unitX, 4 * unitH);
-    vertex(5.15 * unitX, 0.5 * unitH);
-    vertex(5.35 * unitX, 0.5 * unitH);
-    vertex(5.75 * unitX, 3 * unitH);
-    vertex(6 * unitX, 4 * unitH);
-    vertex(6 * unitX, 11 * unitH);
-    vertex(6.25 * unitX, 9 * unitH);
-    vertex(7 * unitX, 8 * unitH);
-    vertex(7.5 * unitX, 7 * unitH);
-    vertex(8 * unitX, 8 * unitH);
-    vertex(8.7 * unitX, 9 * unitH);
-    vertex(8.7 * unitX, 10 * unitH);
-    vertex(10 * unitX, 10 * unitH);
-    vertex(10.5 * unitX, 11 * unitH);
-    vertex(11.2 * unitX, 10 * unitH);
-    vertex(11.5 * unitX, 11 * unitH);
-    vertex(12 * unitX, 12 * unitH);
-    vertex(13 * unitX, 13.8 * unitH);
-    vertex(15 * unitX, 13.8 * unitH);
-
-    vertex(16 * unitX, 16 * unitY);
-    endShape(CLOSE);
+  for (let i = 0; i < 4; i++) {
+    building(spectrum[i]);
+    waterSurface(spectrum[i]);
   }
 
   waterColor(polyShadow, 71, 41, 50, 20);
@@ -181,7 +133,55 @@ function draw() {
   waterColor(polyBlurry2, 40, 90, 30, 5); //distant building
 }
 
-function waterSurface() {
+function building(tt) {
+  //color of building
+  fill(71, 41, 50);
+  strokeWeight(2);
+  stroke(43, 49, 45);
+  const unitH1 = map(tt, 0, 255, 0, -100);
+  const unitH = unitY + unitH1 / 8;
+  let r = map(tt, 0, 255, 0, 71);
+  let c1 = color(r, 41, 50);
+  let c2 = color(43, r, r);
+  let col = lerpColor(c1, c2, random(10));
+
+  fill(col);
+
+  //the building
+  beginShape();
+  vertex(0, 16 * unitY);
+  vertex(0, 13.8 * unitH);
+  vertex(unitX, 13.8 * unitH);
+  vertex(2 * unitX, 11 * unitH);
+  vertex(3 * unitX, 11 * unitH);
+  vertex(3.4 * unitX, 9 * unitH);
+  vertex(4 * unitX, 11 * unitH);
+  vertex(4.7 * unitX, 10.5 * unitH);
+  vertex(4.7 * unitX, 4 * unitH);
+  vertex(4.9 * unitX, 4 * unitH);
+  vertex(5.15 * unitX, 0.5 * unitH);
+  vertex(5.35 * unitX, 0.5 * unitH);
+  vertex(5.75 * unitX, 3 * unitH);
+  vertex(6 * unitX, 4 * unitH);
+  vertex(6 * unitX, 11 * unitH);
+  vertex(6.25 * unitX, 9 * unitH);
+  vertex(7 * unitX, 8 * unitH);
+  vertex(7.5 * unitX, 7 * unitH);
+  vertex(8 * unitX, 8 * unitH);
+  vertex(8.7 * unitX, 9 * unitH);
+  vertex(8.7 * unitX, 10 * unitH);
+  vertex(10 * unitX, 10 * unitH);
+  vertex(10.5 * unitX, 11 * unitH);
+  vertex(11.2 * unitX, 10 * unitH);
+  vertex(11.5 * unitX, 11 * unitH);
+  vertex(12 * unitX, 12 * unitH);
+  vertex(13 * unitX, 13.8 * unitH);
+  vertex(15 * unitX, 13.8 * unitH);
+  vertex(16 * unitX, 16 * unitY);
+  endShape(CLOSE);
+}
+
+function waterSurface(spectrum) {
   push();
   randomSeed(45);
   translate(0, windowHeight / 2);
@@ -191,7 +191,8 @@ function waterSurface() {
     for (let x = 0; x < cols; x++) {
       let angle = noise(xoff, yoff) * TWO_PI;
       let v = p5.Vector.fromAngle(angle * -0.2);
-      xoff += inc;
+      // xoff += inc;
+      xoff = spectrum + inc;
       noStroke();
       push();
       translate(x * scl, y * scl);
