@@ -46,8 +46,7 @@ function setup() {
 
   button = createButton("Play"); // Create a play button
   button.mousePressed(toggleSong); // Add mouse press event to the button
-  button.position(20, 30);
-  button.size(80);
+  button.size(70);
 
   fft = new p5.FFT(0.3, 32); // Create a new FFT analysis object
 
@@ -94,6 +93,15 @@ function setup() {
   cols = windowWidth / scl;
   rows = windowHeight / scl;
 
+  w = windowWidth;
+  h = windowHeight;
+  unitX = w / 32; //unit coordinate for x
+  unitY = h / 32; //unit coordinate for y
+  unitH = 0;
+  unitH1 = 0;
+
+  button.position(unitX, unitY);
+
   //Build four arrays: skyColorLerp A/B/C/D to contain the lerpColor() results between the
   //skyColorsFrom[] and skyColorsTo[]
   generateColor(1, skyColorsLerpA, 0, 8);
@@ -105,13 +113,6 @@ function setup() {
   generateColor(2, waterColorsLerpB, 1, 9);
   generateColor(2, waterColorsLerpC, 2, 9);
   generateColor(2, waterColorsLerpD, 3, 9);
-
-  w = windowWidth;
-  h = windowHeight;
-  unitX = w / 32; //unit coordinate for x
-  unitY = h / 32; //unit coordinate for y
-  unitH = 0;
-  unitH1 = 0;
 
   shadow();
   blurryBg1(); //transition
@@ -344,6 +345,7 @@ function updateDimensions() {
   unitX = w / 32;
   unitY = h / 32;
 
+  button.position(unitX, unitY);
   shadow();
   blurryBg1();
   blurryBg2();
